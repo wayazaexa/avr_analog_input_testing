@@ -22,6 +22,10 @@ BIN := program.hex
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
+TEST := $(BIN_DIR)/check.exe
+GTEST := gtest
+LIBGTEST := /usr/local/lib/libgtest_main.a /usr/local/lib/libgtest.a
+
 .PHONY: clean fresh all isp
 
 all: $(BIN_DIR)/$(BIN)
@@ -39,6 +43,12 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 
 isp: $(BIN_DIR)/${BIN}
 	$(OBJISP) -F -V -c arduino -p ${MCU} -P ${PORT} -U flash:w:$<
+
+$(TEST): $(SRC_DIR)/joystickTests.cpp
+	g++ -o $@ $^ -Wall -Wextra -I $(GTEST) $(LIBGTEST)
+
+test: $(TEST)
+	./$(TEST)
 
 clean:
 	@rm -rv $(OBJ_DIR)
